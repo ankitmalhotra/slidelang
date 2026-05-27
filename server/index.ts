@@ -11,6 +11,7 @@
  * Or with no key at all — it falls back to the template planner automatically.
  */
 
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { planDeck, selectProvider } from "../src/planner/orchestrator";
