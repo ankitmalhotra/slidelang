@@ -17,7 +17,10 @@ function stripFences(text: string): string {
 
 export class ClaudePlanner implements DeckPlanner {
   readonly name = "claude";
-  constructor(private apiKey: string, private model = "claude-sonnet-4-20250514") {}
+  private model: string;
+  constructor(private apiKey: string, model?: string) {
+    this.model = model || "claude-haiku-4-5";
+  }  
 
   async generate(prompt: string, repairContext?: string): Promise<unknown> {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
