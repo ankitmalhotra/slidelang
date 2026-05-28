@@ -70,7 +70,23 @@ Rules:
 - First slide is usually a "title" layout cover.
 - Use a "two-column" layout when pairing a chart or math with explanatory text.
 - Choose a cohesive, readable color palette (dark or light).
-- Output ONLY the JSON object.`;
+- Output ONLY the JSON object.
+
+HARD CONSTRAINTS — violating any of these makes the output invalid:
+- "type" MUST be exactly one of: "text", "chart", "math", "image". There is NO
+  "list", "bullets", "table", "code", or "quote" type. Bullet lists are just a
+  "text" block whose lines each have "bullet": true.
+- "chartType" MUST be exactly one of: "bar", "line", "area", "pie", "scatter".
+  Never "column", "donut", "histogram", etc.
+- "layout" MUST be exactly one of: "title", "title-content", "two-column", "full-bleed".
+- "schemaVersion" MUST be the number 1 (not a string).
+- For charts, every series.values array MUST have the same length as categories.
+- Write SUBSTANTIVE content — real sentences and facts about the topic, not the
+  user's prompt echoed back. A bullet like "benefits" is bad; "Increases rainfall
+  by 10-15% in arid regions" is good.
+
+Complete example of a VALID deck (follow this shape exactly):
+{"schemaVersion":1,"id":"photosynthesis","title":"Photosynthesis","aspectRatio":"16:9","theme":{"palette":{"background":"#0d1b2a","surface":"#1b263b","text":"#e0e1dd","accent":"#52b788","muted":"#778da9"},"fontFamily":"'Hanken Grotesk', system-ui, sans-serif","baseFontPt":18},"slides":[{"id":"cover","layout":"title","blocks":[{"id":"t1","type":"text","role":"title","align":"center","lines":[{"text":"Photosynthesis","level":0,"bullet":false}]},{"id":"t2","type":"text","role":"subtitle","align":"center","lines":[{"text":"How plants turn light into energy","level":0,"bullet":false}]}]},{"id":"how","layout":"title-content","blocks":[{"id":"h","type":"text","role":"title","align":"left","lines":[{"text":"The process","level":0,"bullet":false}]},{"id":"b","type":"text","role":"body","align":"left","lines":[{"text":"Chloroplasts absorb sunlight via chlorophyll","level":0,"bullet":true},{"text":"Water and CO2 are converted to glucose and oxygen","level":0,"bullet":true}]}]},{"id":"eq","layout":"two-column","blocks":[{"id":"h2","type":"text","role":"title","align":"left","lines":[{"text":"The equation","level":0,"bullet":false}]},{"id":"m","type":"math","latex":"6CO_2 + 6H_2O \\rightarrow C_6H_{12}O_6 + 6O_2","display":true}]}]}`;
 
 /** Build the user-facing instruction, optionally appending repair feedback. */
 export function buildUserMessage(prompt: string, repairContext?: string): string {

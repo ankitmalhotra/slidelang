@@ -20,6 +20,8 @@ export interface PlanResult {
   warnings: string[];
   /** True if we had to fall back to the template planner. */
   usedFallback: boolean;
+  /** When the model failed, the validation errors from its last attempt. */
+  lastErrors?: string[];
 }
 
 interface Env {
@@ -79,12 +81,15 @@ export async function planDeck(
         };
       }
       lastErrors = parsed.errors; // feed back into the next attempt
+      console.warn(`[planner] ${provider.name} attempt ${attempt} failed validation:\n  ` + lastErrors.join("\n  "));
     } catch (e) {
       lastErrors = [(e as Error).message];
+      console.warn(`[planner] ${provider.name} attempt ${attempt} threw: ${(e as Error).message}`);
     }
   }
 
   // Every model attempt failed — degrade gracefully to the template planner.
+  console.warn(`[planner] ${provider.name} exhausted ${maxAttempts} attempts; falling back to template.`);
   const fallback = new TemplatePlanner();
   const raw = await fallback.generate(prompt);
   const parsed = parseDeck(raw);
@@ -95,5 +100,6 @@ export async function planDeck(
     attempts: maxAttempts,
     warnings: lintDeck(parsed.deck),
     usedFallback: true,
+    lastErrors, // expose WHY the model failed, for debugging
   };
 }
